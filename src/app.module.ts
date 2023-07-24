@@ -7,7 +7,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { ResumesModule } from './resumes/resumes.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmConfigService } from './config/typeorm.config.service';
+import { TypeOrmConfigService } from './common/config/typeorm.config.service';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 
 @Module({
