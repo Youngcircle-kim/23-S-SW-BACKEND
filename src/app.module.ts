@@ -5,7 +5,6 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './common/config/typeorm.config.service';
-import { EventsGateway } from './events/events.gateway';
 import { EventsModule } from './events/events.module';
 
 @Module({
@@ -18,6 +17,6 @@ import { EventsModule } from './events/events.module';
     EventsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EventsGateway],
+  providers: [AppService],
 })
 export class AppModule {}
