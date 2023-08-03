@@ -12,6 +12,7 @@ async function bootstrap() {
 
   // app.setGlobalPrefix('server'); // prefix는 Next에서 사용하는 api와 충돌을 피하기 위해 server로 설정.
 
+  // app.setGlobalPrefix('server'); // prefix는 Next에서 사용하는 api와 충돌을 피하기 위해 server로 설정.
   app.enableCors(); //cors 설정.
   app.useWebSocketAdapter(new IoAdapter(app));
   await app.listen(PORT);

@@ -1,8 +1,6 @@
 import {
   ConnectedSocket,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  OnGatewayInit,
+  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -10,51 +8,41 @@ import {
 
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
-export class EventsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
-{
-  @WebSocketServer()
-  server: Server;
+@WebSocketGateway({
+  cors: {
+    orgin: 'localhost:3000',
+  },
+})
+export class EventsGateway {
+  @WebSocketServer() server: Server;
 
   private activeSockets: { room: string; id: string }[] = [];
 
   @SubscribeMessage('joinRoom')
-  joinRoom(client: Socket, room: string): void {
-    try {
-      /*
-      client.join(room);
-      client.emit('joinedRoom', room);
-      */
-      console.log('joinRoom');
+  joinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() room: string,
+  ): void {
+    const existingSocket = this.activeSockets?.find(
+      (socket) => socket.room === room && socket.id === client.id,
+    );
 
-      const existingSocket = this.activeSockets?.find(
-        (socket) => socket.room === room && socket.id === client.id,
-      );
+    if (!existingSocket) {
+      this.activeSockets = [...this.activeSockets, { id: client.id, room }];
+      client.emit(`${room}-update-user-list`, {
+        users: this.activeSockets
+          .filter((socket) => socket.room === room && socket.id !== client.id)
+          .map((existingSocket) => existingSocket.id),
+        current: client.id,
+      });
 
-      if (!existingSocket) {
-        this.activeSockets = [...this.activeSockets, { id: client.id, room }];
-        client.emit(`${room}-update-user-list`, {
-          users: this.activeSockets
-            .filter((socket) => socket.room === room && socket.id !== client.id)
-            .map((existingSocket) => existingSocket.id),
-          current: client.id,
-        });
-
-        console.log(`Enter ${client.id} in ${room}`);
-
-        client.broadcast.emit(`${room}-add-user`, {
-          user: client.id,
-        });
-      }
-    } catch (err) {
-      console.error(err);
+      client.emit(`${room}-add-user`, {
+        user: client.id,
+      });
     }
 
-    /*
     client.join(room);
-    client.emit('joinedRoom', room);
-    */
+    client.emit('joinedRoom', { room });
   }
 
   @SubscribeMessage('call-user')
@@ -68,11 +56,20 @@ export class EventsGateway
 
   @SubscribeMessage('make-answer')
   makeAnswer(client: Socket, data: any): void {
-    console.log(data.answer, client.id, data.to);
-    client.to(data.to).emit('answer-made', {
-      socket: client.id,
-      answer: data.answer,
-    });
+    try {
+      console.log(
+        `${client.to(data.to).emit('answer-made', {
+          socket: client.id,
+          answer: data.answer,
+        })}`,
+      );
+      client.to(data.to).emit('answer-made', {
+        socket: client.id,
+        answer: data.answer,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   @SubscribeMessage('reject-call')
