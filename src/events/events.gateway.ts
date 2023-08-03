@@ -1,4 +1,6 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -6,19 +8,21 @@ import {
 
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    orgin: 'localhost:3000',
+  },
+})
 export class EventsGateway {
   @WebSocketServer() server: Server;
 
   private activeSockets: { room: string; id: string }[] = [];
 
   @SubscribeMessage('joinRoom')
-  joinRoom(client: Socket, room: string): void {
-    /*
-    client.join(room);
-    client.emit('joinedRoom', room);
-    */
-
+  joinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() room: string,
+  ): void {
     const existingSocket = this.activeSockets?.find(
       (socket) => socket.room === room && socket.id === client.id,
     );
@@ -32,12 +36,13 @@ export class EventsGateway {
         current: client.id,
       });
 
-      console.log(`Enter ${client.id} in ${room}`);
-
-      client.broadcast.emit(`${room}-add-user`, {
+      client.emit(`${room}-add-user`, {
         user: client.id,
       });
     }
+
+    client.join(room);
+    client.emit('joinedRoom', { room });
   }
 
   @SubscribeMessage('call-user')
@@ -50,10 +55,20 @@ export class EventsGateway {
 
   @SubscribeMessage('make-answer')
   makeAnswer(client: Socket, data: any): void {
-    client.to(data.to).emit('answer-made', {
-      socket: client.id,
-      answer: data.answer,
-    });
+    try {
+      console.log(
+        `${client.to(data.to).emit('answer-made', {
+          socket: client.id,
+          answer: data.answer,
+        })}`,
+      );
+      client.to(data.to).emit('answer-made', {
+        socket: client.id,
+        answer: data.answer,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   @SubscribeMessage('reject-call')
