@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './common/config/typeorm.config.service';
 import { EventsModule } from './events/events.module';
+import { WebPushModule } from './web-push/web-push.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { EventsModule } from './events/events.module';
     }),
     AppointmentsModule,
     EventsModule,
+    WebPushModule,
   ],
   controllers: [AppController],
   providers: [AppService],
