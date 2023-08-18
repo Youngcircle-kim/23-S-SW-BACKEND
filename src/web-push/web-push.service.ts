@@ -1,15 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import * as webpush from 'web-push';
-import { error } from 'console';
+import * as admin from 'firebase-admin';
+import { applicationDefault } from 'firebase-admin/app';
 
 @Injectable()
 export class WebPushService {
-  async sendNotfication(subscription: any) {
-    const payload = JSON.stringify({ title: 'Push Test' });
+  private readonly fcm: admin.messaging.Messaging;
+  constructor() {
+    admin.initializeApp({
+      credential: applicationDefault(),
+    });
+
+    this.fcm = admin.messaging();
+  }
+
+  async sendPushNotification(
+    token: string,
+    title: string,
+    body: string,
+  ): Promise<string> {
+    const message: admin.messaging.Message = {
+      token,
+      notification: {
+        title,
+        body,
+      },
+    };
+
     try {
-      await webpush.sendNotification(subscription, payload);
-    } catch (err) {
-      error(err);
+      const response = await this.fcm.send(message);
+      return `Notification sent successfully: ${response}`;
+    } catch (error) {
+      return `Error sending notification: ${error}`;
     }
   }
 }

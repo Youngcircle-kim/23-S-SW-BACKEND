@@ -1,14 +1,16 @@
-import { Post, Body, Controller, HttpStatus } from '@nestjs/common';
+import { Post, Body, Controller } from '@nestjs/common';
 import { WebPushService } from './web-push.service';
 
 @Controller()
 export class WebPushController {
-  constructor(private readonly webPushService: WebPushService) {}
+  constructor(private readonly fcmService: WebPushService) {}
 
-  @Post('/subscribe')
-  async subscribe(@Body() subscription: any) {
-    await this.webPushService.sendNotfication(subscription);
-
-    return { status: HttpStatus.CREATED };
+  @Post('send-notification')
+  async sendPushNotification(
+    @Body('token') token: string,
+    @Body('title') title: string,
+    @Body('body') body: string,
+  ): Promise<string> {
+    return this.fcmService.sendPushNotification(token, title, body);
   }
 }
