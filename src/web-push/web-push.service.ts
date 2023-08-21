@@ -92,7 +92,7 @@ export class WebPushService {
     }
   }
 
-  @Cron('0 18 * SUN,MON,TUE,WED,THU')
+  @Cron('0 0 18 * SUN,MON,TUE,WED,THU')
   hadleAlarmByDay() {
     this.findEmail(24 * 60);
     //reservation table을 이용해, 예약 걸린 userId 값을 얻는 logic

@@ -1,7 +1,5 @@
 import { Post, Body, Controller } from '@nestjs/common';
 import { WebPushService } from './web-push.service';
-import { log } from 'console';
-import { Cron } from '@nestjs/schedule';
 
 @Controller()
 export class WebPushController {
