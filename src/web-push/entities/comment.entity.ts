@@ -9,7 +9,7 @@ export class Comment extends BaseTimeEntity {
   id: number;
 
   @Column()
-  email: string;
+  comment: string;
 
   @Column()
   major: number;
@@ -20,12 +20,12 @@ export class Comment extends BaseTimeEntity {
   @ManyToOne(() => Resume, (Resume) => Resume.commentId)
   Resume: Resume;
 
-  static of(email: string, major: number): Comment {
-    const comment: Comment = new Comment();
+  static of(comment: string, major: number): Comment {
+    const comments: Comment = new Comment();
 
-    comment.email = email;
-    comment.major = major;
+    comments.comment = comment;
+    comments.major = major;
 
-    return comment;
+    return comments;
   }
 }

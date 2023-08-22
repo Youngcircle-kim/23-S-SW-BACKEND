@@ -10,8 +10,6 @@ import { error, log } from 'console';
 
 @Injectable()
 export class WebPushService {
-  private map: Map<string, string[]> = new Map();
-  private emails: string[] = [];
   private tokens: string[] = [];
   private readonly fcm: admin.messaging.Messaging;
 
@@ -56,25 +54,9 @@ export class WebPushService {
     }
   }
 
-  async saveClientToken(token: string, userId: string): Promise<string> {
-    // TODO
-    // MAP에 token, user id 저장하는 logic
-    if (this.map.get(userId)) {
-      this.tokens = this.map.get(userId);
-    }
-    this.tokens.push(token);
-
-    this.map.set(userId, this.tokens);
-    this.map.forEach((val, key, mapObject) => {
-      console.log(`${val} , ${key}`);
-    });
-    this.tokens = [];
-    return 'success';
-  }
-
   @Cron('0,30 8-16 * * MON,TUE,WED,THU,FRI')
   async hadleAlarmByHour() {
-    this.findEmail(35);
+    await this.findEmail(35);
 
     //reservation table을 이용해, 예약 걸린 userId 값을 얻는 logic
 
@@ -82,10 +64,8 @@ export class WebPushService {
     const body = '30분뒤 면접이 있습니다.';
 
     try {
-      this.emails.forEach((userId) => {
-        this.map.get(userId).forEach(async (val) => {
-          await this.sendPushNotification(val, title, body);
-        });
+      this.tokens.forEach(async (token) => {
+        await this.sendPushNotification(token, title, body);
       });
     } catch (err) {
       error(err);
@@ -93,17 +73,15 @@ export class WebPushService {
   }
 
   @Cron('0 0 18 * SUN,MON,TUE,WED,THU')
-  hadleAlarmByDay() {
-    this.findEmail(24 * 60);
+  async hadleAlarmByDay() {
+    await this.findEmail(24 * 60);
     //reservation table을 이용해, 예약 걸린 userId 값을 얻는 logic
     const title = '면접을 부탁해';
     const body = '다음날 면접 예약이 잡혀있습니다.';
 
     try {
-      this.emails.forEach((userId) => {
-        this.map.get(userId).forEach(async (val) => {
-          await this.sendPushNotification(val, title, body);
-        });
+      this.tokens.forEach(async (token) => {
+        await this.sendPushNotification(token, title, body);
       });
     } catch (err) {
       error(err);
@@ -111,7 +89,7 @@ export class WebPushService {
   }
 
   async findEmail(time: number) {
-    this.emails.length = 0;
+    this.tokens.length = 0;
 
     const currentTime = new Date();
     const endTime = new Date(currentTime.getTime() + time * 60 * 1000);
@@ -125,7 +103,7 @@ export class WebPushService {
 
     const userEmails = await this.userRepository
       .createQueryBuilder('user')
-      .select('user.email', 'email')
+      .select('user.clientToken', 'clientToken')
       .whereInIds(studentIds.map((entry) => entry.studentId))
       .getRawMany();
 
@@ -138,20 +116,19 @@ export class WebPushService {
 
     const counselorEmails = await this.userRepository
       .createQueryBuilder('user')
-      .select('user.email', 'email')
+      .select('user.clientToken', 'clientToken')
       .whereInIds(counselorIds.map((entry) => entry.counselorId))
       .getRawMany();
 
-    userEmails.forEach((email) => {
-      this.emails.push(email.email);
+    userEmails.forEach((token) => {
+      this.tokens.push(token.clientToken);
     });
 
-    counselorEmails.forEach((email) => {
-      this.emails.push(email.email);
+    counselorEmails.forEach((token) => {
+      this.tokens.push(token.clientToken);
     });
 
-    this.emails = Array.from(new Set(this.emails));
-
-    log(this.emails);
+    this.tokens = Array.from(new Set(this.tokens));
+    log(this.tokens);
   }
 }

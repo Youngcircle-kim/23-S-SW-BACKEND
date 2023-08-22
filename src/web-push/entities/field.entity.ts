@@ -10,13 +10,17 @@ export class Field extends BaseTimeEntity {
   @Column()
   field: number;
 
+  @Column()
+  detailedField: number;
+
   @ManyToOne(() => User, (User) => User.fieldId)
   User: User;
 
-  static of(fields: number): Field {
+  static of(fields: number, detailedField: number): Field {
     const field: Field = new Field();
 
     field.field = fields;
+    field.detailedField = detailedField;
 
     return field;
   }

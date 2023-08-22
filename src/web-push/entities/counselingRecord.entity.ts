@@ -16,18 +16,18 @@ export class CounselingReord extends BaseTimeEntity {
   @Column()
   comment: string;
 
-  @Column()
-  password: string;
+  @Column('text')
+  indicator: string;
 
   @OneToOne((type) => Reservation)
   @JoinColumn()
   Reservation: Reservation;
 
-  static of(comment: string, password: string): CounselingReord {
+  static of(comment: string, indicator: string): CounselingReord {
     const counselingRecord: CounselingReord = new CounselingReord();
 
     counselingRecord.comment = comment;
-    counselingRecord.password = password;
+    counselingRecord.indicator = indicator;
 
     return counselingRecord;
   }

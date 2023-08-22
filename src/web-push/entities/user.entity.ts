@@ -11,7 +11,7 @@ export class User extends BaseTimeEntity {
   id: number;
 
   @Column()
-  email: string;
+  name: string;
 
   @Column()
   password: string;
@@ -21,6 +21,9 @@ export class User extends BaseTimeEntity {
 
   @Column()
   major: number;
+
+  @Column({ nullable: true })
+  clientToken: string;
 
   @OneToMany(() => Comment, (Comment) => Comment.User, { lazy: true })
   commentId: Comment;
@@ -38,17 +41,19 @@ export class User extends BaseTimeEntity {
   CounselorReservationId: Reservation[];
 
   static of(
-    email: string,
+    name: string,
     password: string,
     position: boolean,
     major: number,
+    clientToken: string,
   ): User {
     const user: User = new User();
 
-    user.email = email;
+    user.name = name;
     user.password = password;
     user.position = position;
     user.major = major;
+    user.clientToken = clientToken;
 
     return user;
   }

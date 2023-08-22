@@ -13,12 +13,4 @@ export class WebPushController {
   ): Promise<string> {
     return this.fcmService.sendPushNotification(token, title, body);
   }
-
-  @Post('save-token')
-  async saveClientToken(
-    @Body('token') token: string,
-    @Body('userId') userId: string,
-  ): Promise<string> {
-    return this.fcmService.saveClientToken(token, userId);
-  }
 }
