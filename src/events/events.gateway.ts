@@ -5,104 +5,69 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-
 import { Server, Socket } from 'socket.io';
+
+// WebSocketGateway 데코레이터를 사용하여 WebSocketGateway 클래스를 정의합니다.
 
 @WebSocketGateway({
   cors: {
-    orgin: 'localhost:3000',
+    orgin: 'localhost:3000', // 클라이언트의 주소 'localhost:3000'를 허용하는 CORS 설정
   },
 })
 export class EventsGateway {
-  @WebSocketServer() server: Server;
+  @WebSocketServer() server: Server; // WebSocket 서버를 주입하는 속성
 
-  private activeSockets: { room: string; id: string }[] = [];
+  private activeSockets: { room: string; id: string }[] = []; // 활성 소켓 정보를 저장하는 배열
 
+  // 'joinRoom' 이벤트에 대한 구독자를 만듭니다.
   @SubscribeMessage('joinRoom')
   joinRoom(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: Socket, // 클라이언트 소켓 객체를 매개변수로 받습니다.
     @MessageBody() room: string,
   ): void {
-    const existingSocket = this.activeSockets?.find(
-      (socket) => socket.room === room && socket.id === client.id,
-    );
-
-    if (!existingSocket) {
-      this.activeSockets = [...this.activeSockets, { id: client.id, room }];
-      client.emit(`${room}-update-user-list`, {
-        users: this.activeSockets
-          .filter((socket) => socket.room === room && socket.id !== client.id)
-          .map((existingSocket) => existingSocket.id),
-        current: client.id,
-      });
-
-      client.emit(`${room}-add-user`, {
-        user: client.id,
-      });
-    }
+    // 현재 소켓 정보 배열에서 해당 방과 클라이언트 id를 가진 소켓 정보를 찾습니다.
+    client.to(room).emit('welcome', room);
 
     client.join(room);
-    client.emit('joinedRoom', { room });
+    console.log(`${room}방의, ${client.id} 입장`);
   }
 
   @SubscribeMessage('call-user')
-  callUser(client: Socket, data: any): void {
-    client.to(data.to).emit('call-made', {
-      offer: data.offer,
-      socket: client.id,
-    });
+  callUser(
+    @ConnectedSocket() client: Socket, // 클라이언트 소켓 객체를 매개변수로 받습니다.
+    @MessageBody() data: { room: string; offer: any },
+  ): void {
+    client.to(data.room).emit('call-made', data.offer, data.room);
+    console.log(`${data.room}방을 받고, ${data.offer} 라는 offer을 받았습니다`);
+    console.log('offer 받았고, peer B에 보냅니다');
   }
 
-  @SubscribeMessage('make-answer')
-  makeAnswer(client: Socket, data: any): void {
-    try {
-      console.log(
-        `${client.to(data.to).emit('answer-made', {
-          socket: client.id,
-          answer: data.answer,
-        })}`,
-      );
-      client.to(data.to).emit('answer-made', {
-        socket: client.id,
-        answer: data.answer,
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  @SubscribeMessage('reject-call')
-  rejectCall(client: Socket, data: any): void {
-    client.to(data.from).emit('call-rejected', {
-      socket: client.id,
-    });
+  @SubscribeMessage('call-answer')
+  callAnswer(
+    @ConnectedSocket() client: Socket, // 클라이언트 소켓 객체를 매개변수로 받습니다.
+    @MessageBody() data: { room: string; answer: any },
+  ): void {
+    client.to(data.room).emit('answer-get', data.answer, data.room);
+    console.log(`${data.room}방에서, ${data.answer} 라는 answer을 받았습니다`);
+    console.log('answer을 peer A에게 전달합니다');
   }
 
   @SubscribeMessage('ice')
-  iceCandidate(client: Socket, data: any): void {
-    const { ice } = data;
-    client.to(data.from).emit('ice', ice);
+  iceCandidate(
+    @ConnectedSocket() client: Socket, // 클라이언트 소켓 객체를 매개변수로 받습니다.
+    @MessageBody() data: { room: any; ice: any },
+  ): void {
+    console.log(`${data.room}방을 받고, ${data.ice} 라는 ice를 받았습니다`);
+    client.to(data.room).emit('ice', data.ice, data.room);
+    console.log(`${client.id}에게서 ice들을 받아옴`);
   }
 
-  afterInit(): void {
-    console.log(`Init!`);
-  }
-
-  handleDisconnect(client: Socket): void {
-    const existingSocket = this.activeSockets.find(
-      (socket) => socket.id === client.id,
-    );
-
-    if (!existingSocket) return;
-
-    this.activeSockets = this.activeSockets.filter(
-      (socket) => socket.id !== client.id,
-    );
-
-    client.broadcast.emit(`${existingSocket.room}-remove-user`, {
-      socketId: client.id,
-    });
-
-    console.log(`Client disconnected: ${client.id}`);
+  @SubscribeMessage('leave')
+  leaveRoom(
+    @ConnectedSocket() client: Socket, // 클라이언트 소켓 객체를 매개변수로 받습니다.
+    @MessageBody() room: string,
+  ): void {
+    client.leave(room);
+    console.log(` ${client.id}가 ${room}을 떠났습니다.`);
   }
 }
