@@ -14,13 +14,22 @@ export class Field extends BaseTimeEntity {
   detailedField: number;
 
   @ManyToOne(() => User, (User) => User.fieldId)
-  User: User;
+  user: User;
 
-  static of(fields: number, detailedField: number): Field {
+  editField(field: number): void {
+    this.field = field;
+  }
+
+  editDetailedField(detailedField: number): void {
+    this.detailedField = detailedField;
+  }
+
+  static of(fields: number, detailedField: number, user: User): Field {
     const field: Field = new Field();
 
     field.field = fields;
     field.detailedField = detailedField;
+    field.user = user;
 
     return field;
   }

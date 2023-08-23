@@ -16,10 +16,24 @@ export class Reservation extends BaseTimeEntity {
   @ManyToOne(() => User, (User) => User.CounselorReservationId)
   Counselor: User;
 
-  static of(time: Date): Reservation {
+  editTime(time: Date) {
+    this.time = time;
+  }
+
+  editStudent(Student: User) {
+    this.Student = Student;
+  }
+
+  editCounselor(Counselor: User) {
+    this.Counselor = Counselor;
+  }
+
+  static of(time: Date, Student: User, Counselor: User): Reservation {
     const reservation: Reservation = new Reservation();
 
     reservation.time = time;
+    reservation.Student = Student;
+    reservation.Counselor = Counselor;
 
     return reservation;
   }

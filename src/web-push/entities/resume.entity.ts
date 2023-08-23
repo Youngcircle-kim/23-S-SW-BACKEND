@@ -24,13 +24,14 @@ export class Resume extends BaseTimeEntity {
   User: User;
 
   @OneToMany(() => Comment, (Comment) => Comment.Resume)
-  commentId: Comment;
+  commentId: Comment[];
 
-  static of(resumeText: string, isVisuable: boolean): Resume {
+  static of(resumeText: string, isVisuable: boolean, User: User): Resume {
     const resume: Resume = new Resume();
 
     resume.resumeText = resumeText;
     resume.isVisuable = isVisuable;
+    resume.User = User;
 
     return resume;
   }

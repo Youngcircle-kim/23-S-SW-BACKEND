@@ -7,6 +7,12 @@ import { TypeOrmConfigService } from './common/config/typeorm.config.service';
 import { EventsModule } from './events/events.module';
 import { WebPushModule } from './web-push/web-push.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AuthModule } from './auth/auth.module';
+import { FieldModule } from './field/field.module';
+import { ReservationModule } from './reservation/reservation.module';
+import { ResumeModule } from './resume/resume.module';
+import { CounselingRecordModule } from './counseling-record/counseling-record.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -17,6 +23,12 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     EventsModule,
     WebPushModule,
+    AuthModule,
+    FieldModule,
+    ReservationModule,
+    ResumeModule,
+    CounselingRecordModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

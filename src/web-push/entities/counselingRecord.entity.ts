@@ -9,7 +9,7 @@ import {
 import { Reservation } from './reservation.entity';
 
 @Entity('counselingRecords')
-export class CounselingReord extends BaseTimeEntity {
+export class CounselingRecord extends BaseTimeEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,11 +23,16 @@ export class CounselingReord extends BaseTimeEntity {
   @JoinColumn()
   Reservation: Reservation;
 
-  static of(comment: string, indicator: string): CounselingReord {
-    const counselingRecord: CounselingReord = new CounselingReord();
+  static of(
+    comment: string,
+    indicator: string,
+    Reservation: Reservation,
+  ): CounselingRecord {
+    const counselingRecord: CounselingRecord = new CounselingRecord();
 
     counselingRecord.comment = comment;
     counselingRecord.indicator = indicator;
+    counselingRecord.Reservation = Reservation;
 
     return counselingRecord;
   }
