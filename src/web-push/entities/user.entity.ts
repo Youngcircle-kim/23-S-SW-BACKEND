@@ -26,13 +26,13 @@ export class User extends BaseTimeEntity {
   clientToken: string;
 
   @OneToMany(() => Comment, (Comment) => Comment.User, { lazy: true })
-  commentId: Comment;
+  commentId: Comment[];
 
   @OneToMany(() => Resume, (Resume) => Resume.User, { lazy: true })
-  resumeId: Resume;
+  resumeId: Resume[];
 
-  @OneToMany(() => Field, (Field) => Field.User, { lazy: true })
-  fieldId: Field;
+  @OneToMany(() => Field, (Field) => Field.user, { lazy: true })
+  fieldId: Field[];
 
   @OneToMany(() => Reservation, (Reservation) => Reservation.Student)
   studentReservationId: Reservation[];
