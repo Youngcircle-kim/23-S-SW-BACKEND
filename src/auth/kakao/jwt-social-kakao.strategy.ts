@@ -1,26 +1,34 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-kakao';
+import { Strategy, Profile } from 'passport-kakao';
 
-export class JwtKakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
-  constructor() {
+@Injectable()
+export class JwtKakaoStrategy extends PassportStrategy(Strategy) {
+  constructor(private readonly configService: ConfigService) {
     super({
-      clientID: process.env.KAKAO_CLIENT_ID,
-      clientSecret: process.env.KAKAO_CLIENT_SECRET,
-      callbackURL: process.env.KAKAO_CALLBACK_URL,
-      scope: ['account_email', 'profile_nickname'],
+      clientID: configService.get<string>('KAKAO_REST_API_KEY'),
+      clientSecret: configService.get<string>('KAKAO_CLIENT_SECRET'),
+      callbackURL: configService.get<string>('KAKAO_REDIRECT_URI'),
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any) {
-    console.log('accessToken' + accessToken);
-    console.log('refreshToken' + refreshToken);
-    console.log(profile);
-    console.log(profile._json.kakao_account.email);
-
-    return {
-      name: profile.displayName,
-      email: profile._json.kakao_account.email,
-      password: profile.id,
-    };
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: Profile,
+    done: (error: any, user?: any, info?: any) => void,
+  ) {
+    try {
+      const { _json } = profile;
+      const user = {
+        email: _json.kakao_account.email,
+        nickname: _json.properties.nickname,
+        photo: _json.properties.thumbnail_image,
+      };
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
   }
 }

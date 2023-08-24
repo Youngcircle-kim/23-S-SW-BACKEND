@@ -13,6 +13,7 @@ import { ReservationModule } from './reservation/reservation.module';
 import { ResumeModule } from './resume/resume.module';
 import { CounselingRecordModule } from './counseling-record/counseling-record.module';
 import { CommentModule } from './comment/comment.module';
+import { AiInterviewModule } from './ai-interview/ai-interview.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CommentModule } from './comment/comment.module';
     ResumeModule,
     CounselingRecordModule,
     CommentModule,
+    AiInterviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],

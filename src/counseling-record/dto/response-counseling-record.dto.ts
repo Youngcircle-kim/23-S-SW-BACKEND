@@ -4,19 +4,17 @@ export class ResponseCounselingRecordDto {
 
   private readonly comment: string;
 
-  private readonly indicator: string;
-
   private readonly reservationId: number;
 
   constructor(
     counselingRecordId: number,
     comment: string,
-    indicator: string,
+
     reservationId: number,
   ) {
     this.counselingRecordId = counselingRecordId;
     this.comment = comment;
-    this.indicator = indicator;
+
     this.reservationId = reservationId;
   }
 
@@ -26,7 +24,7 @@ export class ResponseCounselingRecordDto {
     return new ResponseCounselingRecordDto(
       counselingRecord.id,
       counselingRecord.comment,
-      counselingRecord.indicator,
+
       Reservation,
     );
   }

@@ -1,65 +1,50 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import axios from 'axios';
-import qs from 'qs';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/web-push/entities/user.entity';
+import { Repository } from 'typeorm';
+import * as jwt from 'jsonwebtoken';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
-  async kakaoLogin(options: { code: string; domain: string }): Promise<any> {
-    const { code, domain } = options;
-    const kakaoKey = '87073966cb41...';
-    const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
-    const kakaoUserInfoUrl = 'https://kapi.kakao.com/v2/user/me';
-    const body = {
-      grant_type: 'authorization_code',
-      client_id: kakaoKey,
-      redirect_uri: `${domain}/kakao-callback`,
-      code,
-    };
-    const headers = {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-    };
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly configService: ConfigService,
+  ) {}
+  async kakaoLogin(req: Request, res: Response): Promise<any> {
     try {
-      const response = await axios({
-        method: 'POST',
-        url: kakaoTokenUrl,
-        timeout: 30000,
-        headers,
-        data: qs.stringify(body),
-      });
+      const { user } = req.body;
 
-      if (response.status === 200) {
-        console.log(`kakaoToken : ${JSON.stringify(response.data)}`);
+      // 유저 중복 검사
 
-        // Token 을 가져왔을 경우 사용자 정보 조회
-        const headerUserInfo = {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-          Authorization: 'Bearer ' + response.data.access_token,
-        };
+      const findUser = await this.userRepository.findOne({ where: user.email });
 
-        console.log(`url : ${kakaoTokenUrl}`);
-        console.log(`headers : ${JSON.stringify(headerUserInfo)}`);
-
-        const responseUserInfo = await axios({
-          method: 'GET',
-          url: kakaoUserInfoUrl,
-          timeout: 30000,
-          headers: headerUserInfo,
-        });
-        console.log(`responseUserInfo.status : ${responseUserInfo.status}`);
-        if (responseUserInfo.status === 200) {
-          console.log(
-            `kakaoUserInfo : ${JSON.stringify(responseUserInfo.data)}`,
-          );
-          return responseUserInfo.data;
-        } else {
-          throw new UnauthorizedException();
-        }
-      } else {
-        throw new UnauthorizedException();
+      if (!findUser) {
+        const createUser = this.userRepository.create(user);
+        await this.userRepository.save(createUser);
       }
+
+      // 카카오 가입이 되어 있는 경우 accessToken 및 refreshToken 발급
+      const findUserPayload = { id: findUser.id };
+
+      const accessToken = jwt.sign(
+        findUserPayload,
+        this.configService.get('JWT_ACCESS_TOKEN_SECRET_KEY'),
+        {
+          expiresIn: +this.configService.get(
+            'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+          ),
+        },
+      );
+
+      return {
+        ok: true,
+        accessToken,
+      };
     } catch (error) {
-      console.log(error);
-      throw new UnauthorizedException();
+      return { ok: false, error: '구글 로그인 인증을 실패 하였습니다.' };
     }
   }
 }
