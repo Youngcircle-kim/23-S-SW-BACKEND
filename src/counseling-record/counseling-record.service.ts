@@ -16,7 +16,6 @@ export class CounselingRecordService {
     const newcounselingRecordnRepository: CounselingRecord =
       CounselingRecord.of(
         createCounselingRecordDto.comment,
-        createCounselingRecordDto.indicator,
         createCounselingRecordDto.Reservation,
       );
     try {
@@ -70,10 +69,6 @@ export class CounselingRecordService {
       });
     if (updateCounselingRecordDto.comment !== null) {
       updatecounselingRecord.comment = updateCounselingRecordDto.comment;
-    }
-
-    if (updateCounselingRecordDto.indicator !== null) {
-      updatecounselingRecord.indicator = updateCounselingRecordDto.indicator;
     }
 
     if (updateCounselingRecordDto.Reservation !== null) {

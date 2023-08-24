@@ -3,11 +3,11 @@ import { Resume } from 'src/web-push/entities/resume.entity';
 export class ResponseResumeDto {
   private readonly resumeId: number;
 
-  private readonly resumeText: string;
+  readonly resumeText: string;
 
-  private readonly isVisuable: boolean;
+  readonly isVisuable: boolean;
 
-  private readonly User: number;
+  readonly User: number;
 
   constructor(
     resumeId: number,

@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { ResumeService } from './resume.service';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('resume')
 export class ResumeController {
@@ -30,5 +41,12 @@ export class ResumeController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.resumeService.remove(+id);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    await this.resumeService.uploadFile(file);
+    return await this.resumeService.convertText();
   }
 }

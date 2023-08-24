@@ -10,6 +10,9 @@ export class User extends BaseTimeEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ nullable: true })
+  email: string;
+
   @Column()
   name: string;
 
@@ -42,6 +45,7 @@ export class User extends BaseTimeEntity {
 
   static of(
     name: string,
+    email: string,
     password: string,
     position: boolean,
     major: number,
@@ -50,6 +54,7 @@ export class User extends BaseTimeEntity {
     const user: User = new User();
 
     user.name = name;
+    user.email = email;
     user.password = password;
     user.position = position;
     user.major = major;

@@ -67,10 +67,6 @@ export class CommentService {
       comment.comment = updateCommentDto.comment;
     }
 
-    if (updateCommentDto.major !== null) {
-      comment.major = updateCommentDto.major;
-    }
-
     if (updateCommentDto.User !== null) {
       comment.User = updateCommentDto.User;
     }

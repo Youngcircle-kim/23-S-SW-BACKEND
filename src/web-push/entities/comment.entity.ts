@@ -11,9 +11,6 @@ export class Comment extends BaseTimeEntity {
   @Column()
   comment: string;
 
-  @Column()
-  major: number;
-
   @ManyToOne(() => User, (User) => User.commentId)
   User: User;
 
@@ -29,7 +26,6 @@ export class Comment extends BaseTimeEntity {
     const comments: Comment = new Comment();
 
     comments.comment = comment;
-    comments.major = major;
     comments.User = User;
     comments.Resume = Resume;
 
