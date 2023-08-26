@@ -115,9 +115,8 @@ export class ResumeService {
     return `This action removes a #${id} resume`;
   }
   async uploadFile(file) {
-    log(file.originalname);
+    log(file);
 
-    log(this.region);
     return await this.s3_upload(
       file.buffer,
       this.buketName,
