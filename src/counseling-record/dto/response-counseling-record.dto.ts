@@ -19,7 +19,7 @@ export class ResponseCounselingRecordDto {
   }
 
   static from(counselingRecord: CounselingRecord): ResponseCounselingRecordDto {
-    const Reservation = counselingRecord.Reservation.id;
+    const Reservation = counselingRecord.reservation.id;
 
     return new ResponseCounselingRecordDto(
       counselingRecord.id,

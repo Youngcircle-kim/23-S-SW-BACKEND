@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCounselingRecordDto } from './dto/create-counseling-record.dto';
 import { UpdateCounselingRecordDto } from './dto/update-counseling-record.dto';
 import { CounselingRecord } from 'src/web-push/entities/counselingRecord.entity';
@@ -16,17 +20,18 @@ export class CounselingRecordService {
     const newcounselingRecordnRepository: CounselingRecord =
       CounselingRecord.of(
         createCounselingRecordDto.comment,
-        createCounselingRecordDto.Reservation,
+        createCounselingRecordDto.indicator,
+        createCounselingRecordDto.reservationId,
       );
     try {
-      const savedCounselingRecord = await this.counselingRecordRepository.save(
+      await this.counselingRecordRepository.save(
         newcounselingRecordnRepository,
       );
 
-      return 'Success create new Field';
+      return { message: '성공' };
     } catch (err) {
       console.error(err);
-      return 'Fail look at the console';
+      throw new BadRequestException();
     }
   }
 
@@ -34,7 +39,7 @@ export class CounselingRecordService {
     const reservations: CounselingRecord[] =
       await this.counselingRecordRepository.find({
         relations: {
-          Reservation: true,
+          reservation: true,
         },
       });
 
@@ -42,52 +47,58 @@ export class CounselingRecordService {
   }
 
   async findOne(id: number) {
-    const updatecounselingRecord: CounselingRecord =
+    const counselingRecord: CounselingRecord =
       await this.counselingRecordRepository.findOne({
         where: { id },
         relations: {
-          Reservation: true,
+          reservation: true,
         },
       });
 
-    if (updatecounselingRecord === null) {
+    if (counselingRecord === null) {
       throw new NotFoundException();
     }
-    return ResponseCounselingRecordDto.from(updatecounselingRecord);
+    return ResponseCounselingRecordDto.from(counselingRecord);
   }
 
   async update(
     id: number,
     updateCounselingRecordDto: UpdateCounselingRecordDto,
   ) {
-    const updatecounselingRecord: CounselingRecord =
-      await this.counselingRecordRepository.findOne({
-        where: { id },
-        relations: {
-          Reservation: true,
-        },
-      });
-    if (updateCounselingRecordDto.comment !== null) {
-      updatecounselingRecord.comment = updateCounselingRecordDto.comment;
-    }
+    try {
+      const updatecounselingRecord: CounselingRecord =
+        await this.counselingRecordRepository.findOne({
+          where: { id },
+          relations: {
+            reservation: true,
+          },
+        });
 
-    if (updateCounselingRecordDto.Reservation !== null) {
-      updatecounselingRecord.Reservation =
-        updateCounselingRecordDto.Reservation;
-    }
+      updatecounselingRecord.edit(updateCounselingRecordDto);
 
-    return `This action updates a #${id} counselingRecord`;
+      await this.counselingRecordRepository.save(updatecounselingRecord);
+
+      return { message: '성공' };
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException();
+    }
   }
 
   async remove(id: number) {
-    const counselingRecord: CounselingRecord =
-      await this.counselingRecordRepository.findOne({
-        where: { id },
-        relations: {
-          Reservation: true,
-        },
-      });
-    this.counselingRecordRepository.remove(counselingRecord);
-    return `This action removes a #${id} counselingRecord`;
+    try {
+      const counselingRecord: CounselingRecord =
+        await this.counselingRecordRepository.findOne({
+          where: { id },
+          relations: {
+            reservation: true,
+          },
+        });
+      this.counselingRecordRepository.remove(counselingRecord);
+      return { message: '성공' };
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException();
+    }
   }
 }

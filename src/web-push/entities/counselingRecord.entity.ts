@@ -16,15 +16,26 @@ export class CounselingRecord extends BaseTimeEntity {
   @Column()
   comment: string;
 
+  @Column('text')
+  indicator: string;
+
   @OneToOne((type) => Reservation)
   @JoinColumn()
-  Reservation: Reservation;
+  reservation: Reservation;
 
-  static of(comment: string, Reservation: Reservation): CounselingRecord {
+  edit(dto) {
+    this.comment = dto.comment;
+  }
+
+  static of(
+    comment: string,
+    indicator: string,
+    Reservation: Reservation,
+  ): CounselingRecord {
     const counselingRecord: CounselingRecord = new CounselingRecord();
-
+    counselingRecord.indicator = indicator;
     counselingRecord.comment = comment;
-    counselingRecord.Reservation = Reservation;
+    counselingRecord.reservation = Reservation;
 
     return counselingRecord;
   }

@@ -4,7 +4,7 @@ import { User } from 'src/web-push/entities/user.entity';
 export class CreateReservationDto {
   time: Date;
 
-  User: User;
+  userId: User;
 
-  Counselor: Counselor;
+  counselorId: Counselor;
 }
