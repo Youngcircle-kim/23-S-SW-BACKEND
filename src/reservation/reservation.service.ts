@@ -33,7 +33,7 @@ export class ReservationService {
   async findAll() {
     const reservations: Reservation[] = await this.reservationRepository.find({
       relations: {
-        User: true,
+        userId: true,
         Counselor: true,
       },
     });
@@ -45,7 +45,7 @@ export class ReservationService {
     const reservation: Reservation = await this.reservationRepository.findOne({
       where: { id },
       relations: {
-        User: true,
+        userId: true,
         Counselor: true,
       },
     });
@@ -60,22 +60,12 @@ export class ReservationService {
     const reservation: Reservation = await this.reservationRepository.findOne({
       where: { id },
       relations: {
-        User: true,
+        userId: true,
         Counselor: true,
       },
     });
-    if (updateReservationDto.time !== null) {
-      reservation.time = updateReservationDto.time;
-    }
-
-    if (updateReservationDto.User !== null) {
-      reservation.User = updateReservationDto.User;
-    }
-
-    if (updateReservationDto.Counselor !== null) {
-      reservation.Counselor = updateReservationDto.Counselor;
-    }
-
+    reservation.edit(updateReservationDto);
+    await this.reservationRepository.save(reservation);
     return `This action updates a #${id} reservation`;
   }
 
@@ -83,7 +73,7 @@ export class ReservationService {
     const reservation: Reservation = await this.reservationRepository.findOne({
       where: { id },
       relations: {
-        User: true,
+        userId: true,
         Counselor: true,
       },
     });

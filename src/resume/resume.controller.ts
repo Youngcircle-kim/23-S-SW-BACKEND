@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Put,
 } from '@nestjs/common';
 import { ResumeService } from './resume.service';
 import { CreateResumeDto } from './dto/create-resume.dto';
@@ -33,7 +34,7 @@ export class ResumeController {
     return this.resumeService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateResumeDto: UpdateResumeDto) {
     return this.resumeService.update(+id, updateResumeDto);
   }
@@ -43,7 +44,7 @@ export class ResumeController {
     return this.resumeService.remove(+id);
   }
 
-  @Post('upload')
+  @Post('text')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     await this.resumeService.uploadFile(file);

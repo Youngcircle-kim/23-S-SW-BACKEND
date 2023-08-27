@@ -10,7 +10,7 @@ import {
 import { Resume } from './resume.entity';
 import { Field } from './field.entity';
 import { Comment } from './comment.entity';
-import { Counselor } from './counselor.emtity';
+import { Counselor } from './counselor.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseTimeEntity {
@@ -26,8 +26,8 @@ export class User extends BaseTimeEntity {
   @Column()
   password: string;
 
-  @Column()
-  position: boolean;
+  @Column('text')
+  image: string;
 
   @Column()
   major: number;
@@ -44,7 +44,7 @@ export class User extends BaseTimeEntity {
   @OneToMany(() => Field, (Field) => Field.User, { lazy: true })
   fieldId: Field[];
 
-  @OneToMany(() => Reservation, (Reservation) => Reservation.User)
+  @OneToMany(() => Reservation, (Reservation) => Reservation.userId)
   studentReservationId: Reservation[];
 
   @OneToOne(() => Counselor, (Counselor) => Counselor.User)
@@ -54,7 +54,7 @@ export class User extends BaseTimeEntity {
     name: string,
     email: string,
     password: string,
-    position: boolean,
+    image: string,
     major: number,
     clientToken: string,
   ): User {
@@ -63,7 +63,7 @@ export class User extends BaseTimeEntity {
     user.name = name;
     user.email = email;
     user.password = password;
-    user.position = position;
+    user.image = image;
     user.major = major;
     user.clientToken = clientToken;
 

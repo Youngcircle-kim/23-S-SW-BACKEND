@@ -1,7 +1,7 @@
 import { BaseTimeEntity } from 'src/common/entities/BaseTimeEntity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
-import { Counselor } from './counselor.emtity';
+import { Counselor } from './counselor.entity';
 
 @Entity('reservations')
 export class Reservation extends BaseTimeEntity {
@@ -12,28 +12,21 @@ export class Reservation extends BaseTimeEntity {
   time: Date;
 
   @ManyToOne(() => User, (User) => User.studentReservationId)
-  User: User;
+  userId: User;
 
   @ManyToOne(() => Counselor, (Counselor) => Counselor.ReservationId)
   Counselor: Counselor;
 
-  editTime(time: Date) {
-    this.time = time;
+  edit(dto) {
+    this.userId = dto.userId;
+    this.Counselor = dto.Counselor;
+    this.time = dto.time;
   }
-
-  editStudent(Student: User) {
-    this.User = Student;
-  }
-
-  editCounselor(Counselor: Counselor) {
-    this.Counselor = Counselor;
-  }
-
   static of(time: Date, Student: User, Counselor: Counselor): Reservation {
     const reservation: Reservation = new Reservation();
 
     reservation.time = time;
-    reservation.User = Student;
+    reservation.userId = Student;
     reservation.Counselor = Counselor;
 
     return reservation;

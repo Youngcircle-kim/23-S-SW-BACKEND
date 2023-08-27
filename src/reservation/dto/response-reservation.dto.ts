@@ -18,7 +18,7 @@ export class ResponseReservationDto {
   }
 
   static from(reservation: Reservation): ResponseReservationDto {
-    const Student = reservation.User.id;
+    const Student = reservation.userId.id;
     log(reservation.Counselor);
     const Counselor = reservation.Counselor.id;
 

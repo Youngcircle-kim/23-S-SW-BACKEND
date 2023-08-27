@@ -1,4 +1,4 @@
-import { Counselor } from 'src/web-push/entities/counselor.emtity';
+import { Counselor } from 'src/web-push/entities/counselor.entity';
 import { User } from 'src/web-push/entities/user.entity';
 
 export class CreateReservationDto {

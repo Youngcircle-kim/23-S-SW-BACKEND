@@ -4,6 +4,6 @@ import { User } from 'src/web-push/entities/user.entity';
 export class CreateCommentDto {
   comment: string;
   major: number;
-  User: User;
+  userId: User;
   Resume: Resume;
 }
