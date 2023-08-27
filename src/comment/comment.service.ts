@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ResponseCommentDto } from './dto/response-comment.dto';
 import { Comment } from '../web-push/entities/comment.entity';
+import { log, error } from 'console';
 
 @Injectable()
 export class CommentService {
@@ -19,7 +20,6 @@ export class CommentService {
   async create(createCommentDto: CreateCommentDto) {
     const newComment: Comment = Comment.of(
       createCommentDto.comment,
-      createCommentDto.major,
       createCommentDto.userId,
       createCommentDto.Resume,
     );
@@ -59,7 +59,30 @@ export class CommentService {
     return ResponseCommentDto.from(comment);
   }
 
-  async update(id: number, updateCommentDto: UpdateCommentDto) {
+  async update(updateCommentDto: UpdateCommentDto) {
+    try {
+      const id = updateCommentDto.id;
+      const comment: Comment = await this.commentRepository.findOne({
+        where: { id },
+        relations: {
+          User: true,
+          Resume: true,
+        },
+      });
+
+      if (updateCommentDto.comment !== null) {
+        comment.comment = updateCommentDto.comment;
+      }
+
+      await this.commentRepository.save(updateCommentDto);
+      return { message: '성공' };
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException();
+    }
+  }
+
+  async remove(id: number) {
     try {
       const comment: Comment = await this.commentRepository.findOne({
         where: { id },
@@ -68,34 +91,10 @@ export class CommentService {
           Resume: true,
         },
       });
-      if (updateCommentDto.comment !== null) {
-        comment.comment = updateCommentDto.comment;
-      }
-
-      if (updateCommentDto.userId !== null) {
-        comment.User = updateCommentDto.userId;
-      }
-
-      if (updateCommentDto.Resume !== null) {
-        comment.Resume = updateCommentDto.Resume;
-      }
-
-      return { message: '성공', updateCommentDto };
+      this.commentRepository.remove(comment);
+      return { message: '성공' };
     } catch (error) {
-      error(error);
       throw new BadRequestException();
     }
-  }
-
-  async remove(id: number) {
-    const comment: Comment = await this.commentRepository.findOne({
-      where: { id },
-      relations: {
-        User: true,
-        Resume: true,
-      },
-    });
-    this.commentRepository.remove(comment);
-    return `This action removes a #${id} comment`;
   }
 }

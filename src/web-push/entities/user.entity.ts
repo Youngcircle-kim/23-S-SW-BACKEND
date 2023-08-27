@@ -8,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Resume } from './resume.entity';
-import { Field } from './field.entity';
 import { Comment } from './comment.entity';
 import { Counselor } from './counselor.entity';
 
@@ -38,11 +37,8 @@ export class User extends BaseTimeEntity {
   @OneToMany(() => Comment, (Comment) => Comment.User, { lazy: true })
   commentId: Comment[];
 
-  @OneToMany(() => Resume, (Resume) => Resume.User, { lazy: true })
+  @OneToMany(() => Resume, (Resume) => Resume.userId)
   resumeId: Resume[];
-
-  @OneToMany(() => Field, (Field) => Field.User, { lazy: true })
-  fieldId: Field[];
 
   @OneToMany(() => Reservation, (Reservation) => Reservation.userId)
   studentReservationId: Reservation[];
@@ -50,6 +46,10 @@ export class User extends BaseTimeEntity {
   @OneToOne(() => Counselor, (Counselor) => Counselor.User)
   CounselorId: Counselor;
 
+  editUserInfo(dto) {
+    this.image = dto.image;
+    this.name = dto.name;
+  }
   static of(
     name: string,
     email: string,

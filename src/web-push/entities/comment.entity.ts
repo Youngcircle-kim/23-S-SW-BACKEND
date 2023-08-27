@@ -17,12 +17,7 @@ export class Comment extends BaseTimeEntity {
   @ManyToOne(() => Resume, (Resume) => Resume.commentId)
   Resume: Resume;
 
-  static of(
-    comment: string,
-    major: number,
-    User: User,
-    Resume: Resume,
-  ): Comment {
+  static of(comment: string, User: User, Resume: Resume): Comment {
     const comments: Comment = new Comment();
 
     comments.comment = comment;

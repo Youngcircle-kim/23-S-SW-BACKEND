@@ -13,6 +13,8 @@ export class ResponseResumeDto {
 
   readonly createdAt: Date;
 
+  readonly name: string;
+
   readonly image: string;
 
   constructor(
@@ -22,6 +24,7 @@ export class ResponseResumeDto {
     userId: number,
     title: string,
     createdAt: Date,
+    name: string,
     image: string,
   ) {
     this.resumeId = resumeId;
@@ -29,20 +32,23 @@ export class ResponseResumeDto {
     this.isVisuable = isVisuable;
     this.userId = userId;
     this.title = title;
+    this.name = name;
     this.createdAt = createdAt;
     this.image = image;
   }
 
   static from(resume: Resume): ResponseResumeDto {
-    const User = resume.User.id;
-    const image = resume.User.image;
+    const userId = resume.userId.id;
+    const name = resume.userId.name;
+    const image = resume.userId.image;
     return new ResponseResumeDto(
       resume.id,
       resume.resumeText,
       resume.isVisuable,
-      User,
+      userId,
       resume.title,
       resume.createdAt,
+      name,
       image,
     );
   }

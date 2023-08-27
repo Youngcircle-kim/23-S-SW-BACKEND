@@ -8,4 +8,8 @@ export class CreateResumeDto {
   title: string;
 
   userId: User;
+
+  name: string;
+
+  image: string;
 }

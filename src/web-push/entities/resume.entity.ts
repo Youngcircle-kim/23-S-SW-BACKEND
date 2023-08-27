@@ -24,7 +24,7 @@ export class Resume extends BaseTimeEntity {
   title: string;
 
   @ManyToOne(() => User, (User) => User.resumeId)
-  User: User;
+  userId: User;
 
   @OneToMany(() => Comment, (Comment) => Comment.Resume)
   commentId: Comment[];
@@ -39,14 +39,14 @@ export class Resume extends BaseTimeEntity {
     resumeText: string,
     isVisuable: boolean,
     title: string,
-    User: User,
+    userId: User,
   ): Resume {
     const resume: Resume = new Resume();
 
     resume.resumeText = resumeText;
     resume.isVisuable = isVisuable;
     resume.title = title;
-    resume.User = User;
+    resume.userId = userId;
 
     return resume;
   }

@@ -1,3 +1,4 @@
+import { log } from 'console';
 import { Comment } from 'src/web-push/entities/comment.entity';
 
 export class ResponseCommentDto {
@@ -23,6 +24,7 @@ export class ResponseCommentDto {
 
   static from(comment: Comment): ResponseCommentDto {
     const userId = comment.User.id;
+    log(comment.Resume);
     const resume = comment.Resume.id;
 
     return new ResponseCommentDto(comment.id, comment.comment, userId, resume);
