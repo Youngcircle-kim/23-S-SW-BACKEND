@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { CounselingRecordService } from './counseling-record.service';
 import { CreateCounselingRecordDto } from './dto/create-counseling-record.dto';
@@ -32,7 +33,7 @@ export class CounselingRecordController {
     return this.counselingRecordService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id') id: string,
     @Body() updateCounselingRecordDto: UpdateCounselingRecordDto,

@@ -11,7 +11,7 @@ export class Counselor extends BaseTimeEntity {
   @OneToOne(() => User, (User) => User.CounselorId)
   User: User;
 
-  @OneToMany(() => Reservation, (Reservation) => Reservation.Counselor)
+  @OneToMany(() => Reservation, (Reservation) => Reservation.counselorId)
   ReservationId: Reservation[];
 
   static of(User: User): Counselor {

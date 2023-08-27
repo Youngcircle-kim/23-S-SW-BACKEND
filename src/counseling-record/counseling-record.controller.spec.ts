@@ -11,7 +11,9 @@ describe('CounselingRecordController', () => {
       providers: [CounselingRecordService],
     }).compile();
 
-    controller = module.get<CounselingRecordController>(CounselingRecordController);
+    controller = module.get<CounselingRecordController>(
+      CounselingRecordController,
+    );
   });
 
   it('should be defined', () => {

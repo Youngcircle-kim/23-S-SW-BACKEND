@@ -1,3 +1,4 @@
+import { User } from 'src/web-push/entities/user.entity';
 import {
   BadRequestException,
   Injectable,
@@ -25,6 +26,10 @@ export class ResumeService {
   constructor(
     @InjectRepository(Resume)
     private readonly resumeRepository: Repository<Resume>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+
     private readonly configService: ConfigService,
   ) {
     this.S3 = new AWS.S3({
@@ -47,27 +52,43 @@ export class ResumeService {
     };
   }
   async create(createResumeDto: CreateResumeDto) {
-    const newResume: Resume = Resume.of(
-      createResumeDto.resumeText,
-      createResumeDto.isVisuable,
-      createResumeDto.title,
-      createResumeDto.userId,
-    );
-
     try {
-      const savedResume = await this.resumeRepository.save(newResume);
+      const userIdId = createResumeDto.userId;
+      log(userIdId);
+      const resume = await this.resumeRepository
+        .createQueryBuilder('resume')
+        .where('resume.userIdId = :userIdId', { userIdId })
+        .getOne();
 
-      return { savedResume };
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .where('user.id = :userIdId', { userIdId })
+        .getOne();
+
+      if (resume !== null) {
+        resume.edit(createResumeDto);
+        user.editUserInfo(createResumeDto);
+        await this.resumeRepository.save(resume);
+        await this.userRepository.save(user);
+        return { message: '수정 성공' };
+      } else {
+        const createResume = await this.resumeRepository.create(
+          createResumeDto,
+        );
+        log(createResume);
+        await this.resumeRepository.save(createResume);
+        return { message: '생성 성공' };
+      }
     } catch (err) {
       console.error(err);
-      throw new BadRequestException();
+      throw new BadRequestException(err);
     }
   }
 
   async findAll() {
     const resumes: Resume[] = await this.resumeRepository.find({
       relations: {
-        User: true,
+        userId: true,
       },
     });
 
@@ -78,7 +99,7 @@ export class ResumeService {
     const resume: Resume = await this.resumeRepository.findOne({
       where: { id },
       relations: {
-        User: true,
+        userId: true,
       },
     });
 
@@ -93,7 +114,7 @@ export class ResumeService {
       const resume: Resume = await this.resumeRepository.findOne({
         where: { id },
         relations: {
-          User: true,
+          userId: true,
         },
       });
 
@@ -115,7 +136,7 @@ export class ResumeService {
       const resume: Resume = await this.resumeRepository.findOne({
         where: { id },
         relations: {
-          User: true,
+          userId: true,
         },
       });
       await this.resumeRepository.remove(resume);
