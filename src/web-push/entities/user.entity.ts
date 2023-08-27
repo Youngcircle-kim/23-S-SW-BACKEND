@@ -1,9 +1,16 @@
 import { Reservation } from './reservation.entity';
 import { BaseTimeEntity } from 'src/common/entities/BaseTimeEntity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Resume } from './resume.entity';
 import { Field } from './field.entity';
 import { Comment } from './comment.entity';
+import { Counselor } from './counselor.emtity';
 
 @Entity({ name: 'users' })
 export class User extends BaseTimeEntity {
@@ -34,14 +41,14 @@ export class User extends BaseTimeEntity {
   @OneToMany(() => Resume, (Resume) => Resume.User, { lazy: true })
   resumeId: Resume[];
 
-  @OneToMany(() => Field, (Field) => Field.user, { lazy: true })
+  @OneToMany(() => Field, (Field) => Field.User, { lazy: true })
   fieldId: Field[];
 
-  @OneToMany(() => Reservation, (Reservation) => Reservation.Student)
+  @OneToMany(() => Reservation, (Reservation) => Reservation.User)
   studentReservationId: Reservation[];
 
-  @OneToMany(() => Reservation, (Reservation) => Reservation.Counselor)
-  CounselorReservationId: Reservation[];
+  @OneToOne(() => Counselor, (Counselor) => Counselor.User)
+  CounselorId: Counselor;
 
   static of(
     name: string,

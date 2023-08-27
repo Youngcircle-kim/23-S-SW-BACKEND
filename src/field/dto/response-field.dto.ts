@@ -23,7 +23,7 @@ export class ResponseFieldDto {
   }
 
   static from(field: Field): ResponseFieldDto {
-    const user = field.user.id;
+    const user = field.User.id;
     return new ResponseFieldDto(
       field.id,
       user,
