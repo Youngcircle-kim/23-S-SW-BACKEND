@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Resume } from 'src/web-push/entities/resume.entity';
 import { Repository } from 'typeorm';
 import { ResponseResumeDto } from './dto/response-reservation.dto';
-import { log } from 'console';
+import { error, log } from 'console';
 import * as AWS from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 
@@ -49,16 +50,17 @@ export class ResumeService {
     const newResume: Resume = Resume.of(
       createResumeDto.resumeText,
       createResumeDto.isVisuable,
-      createResumeDto.user,
+      createResumeDto.title,
+      createResumeDto.userId,
     );
 
     try {
       const savedResume = await this.resumeRepository.save(newResume);
 
-      return 'Success create new Field';
+      return { savedResume };
     } catch (err) {
       console.error(err);
-      return 'Fail look at the console';
+      throw new BadRequestException();
     }
   }
 
@@ -87,37 +89,46 @@ export class ResumeService {
   }
 
   async update(id: number, updateResumeDto: UpdateResumeDto) {
-    const resume: Resume = await this.resumeRepository.findOne({
-      where: { id },
-      relations: {
-        User: true,
-      },
-    });
-    if (updateResumeDto.resumeText !== null) {
-      resume.resumeText = updateResumeDto.resumeText;
-    }
+    try {
+      const resume: Resume = await this.resumeRepository.findOne({
+        where: { id },
+        relations: {
+          User: true,
+        },
+      });
 
-    if (updateResumeDto.isVisuable !== null) {
-      resume.isVisuable = updateResumeDto.isVisuable;
-    }
+      if (resume) {
+        throw error;
+      }
 
-    return `This action updates a #${id} resume`;
+      resume.edit(updateResumeDto);
+      await this.resumeRepository.save(resume);
+      return { message: '수정 성공' };
+    } catch (error) {
+      error(error);
+      throw new BadRequestException();
+    }
   }
 
   async remove(id: number) {
-    const resume: Resume = await this.resumeRepository.findOne({
-      where: { id },
-      relations: {
-        User: true,
-      },
-    });
-    this.resumeRepository.remove(resume);
-    return `This action removes a #${id} resume`;
+    try {
+      const resume: Resume = await this.resumeRepository.findOne({
+        where: { id },
+        relations: {
+          User: true,
+        },
+      });
+      await this.resumeRepository.remove(resume);
+      return { message: '성공' };
+    } catch (error) {
+      error(error);
+      throw new BadRequestException();
+    }
   }
-  async uploadFile(file) {
-    log(file.originalname);
 
-    log(this.region);
+  async uploadFile(file) {
+    log(file);
+
     return await this.s3_upload(
       file.buffer,
       this.buketName,

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +20,7 @@ export class CommentService {
     const newComment: Comment = Comment.of(
       createCommentDto.comment,
       createCommentDto.major,
-      createCommentDto.User,
+      createCommentDto.userId,
       createCommentDto.Resume,
     );
     try {
@@ -25,7 +29,7 @@ export class CommentService {
       return 'Success create new Field';
     } catch (err) {
       console.error(err);
-      return 'Fail look at the console';
+      throw new BadRequestException();
     }
   }
 
@@ -56,26 +60,31 @@ export class CommentService {
   }
 
   async update(id: number, updateCommentDto: UpdateCommentDto) {
-    const comment: Comment = await this.commentRepository.findOne({
-      where: { id },
-      relations: {
-        User: true,
-        Resume: true,
-      },
-    });
-    if (updateCommentDto.comment !== null) {
-      comment.comment = updateCommentDto.comment;
-    }
+    try {
+      const comment: Comment = await this.commentRepository.findOne({
+        where: { id },
+        relations: {
+          User: true,
+          Resume: true,
+        },
+      });
+      if (updateCommentDto.comment !== null) {
+        comment.comment = updateCommentDto.comment;
+      }
 
-    if (updateCommentDto.User !== null) {
-      comment.User = updateCommentDto.User;
-    }
+      if (updateCommentDto.userId !== null) {
+        comment.User = updateCommentDto.userId;
+      }
 
-    if (updateCommentDto.Resume !== null) {
-      comment.Resume = updateCommentDto.Resume;
-    }
+      if (updateCommentDto.Resume !== null) {
+        comment.Resume = updateCommentDto.Resume;
+      }
 
-    return `This action updates a #${id} comment`;
+      return { message: '성공', updateCommentDto };
+    } catch (error) {
+      error(error);
+      throw new BadRequestException();
+    }
   }
 
   async remove(id: number) {

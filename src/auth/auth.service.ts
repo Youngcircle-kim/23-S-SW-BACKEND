@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/web-push/entities/user.entity';
@@ -40,11 +40,14 @@ export class AuthService {
       );
 
       return {
-        ok: true,
-        accessToken,
+        message: 'ok',
+        data: accessToken,
       };
     } catch (error) {
-      return { ok: false, error: '구글 로그인 인증을 실패 하였습니다.' };
+      error(error);
+      throw new BadRequestException({
+        message: '카카오 로그인 인증을 실패 하였습니다.',
+      });
     }
   }
 }

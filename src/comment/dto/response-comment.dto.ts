@@ -5,26 +5,26 @@ export class ResponseCommentDto {
 
   private readonly comment: string;
 
-  private readonly User: number;
+  private readonly userId: number;
 
-  private readonly Resume: number;
+  private readonly resume: number;
 
   constructor(
     commentId: number,
     comment: string,
-    User: number,
-    Resume: number,
+    userId: number,
+    resume: number,
   ) {
     this.commentId = commentId;
     this.comment = comment;
-    this.User = User;
-    this.Resume = Resume;
+    this.userId = userId;
+    this.resume = resume;
   }
 
   static from(comment: Comment): ResponseCommentDto {
-    const User = comment.User.id;
-    const Resume = comment.Resume.id;
+    const userId = comment.User.id;
+    const resume = comment.Resume.id;
 
-    return new ResponseCommentDto(comment.id, comment.comment, User, Resume);
+    return new ResponseCommentDto(comment.id, comment.comment, userId, resume);
   }
 }

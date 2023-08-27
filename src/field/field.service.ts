@@ -33,7 +33,7 @@ export class FieldService {
   async findAll() {
     const fields: Field[] = await this.fieldRepository.find({
       relations: {
-        user: true,
+        User: true,
       },
     });
 
@@ -44,7 +44,7 @@ export class FieldService {
     const field: Field = await this.fieldRepository.findOne({
       where: { id },
       relations: {
-        user: true,
+        User: true,
       },
     });
 
@@ -58,7 +58,7 @@ export class FieldService {
     const field: Field = await this.fieldRepository.findOne({
       where: { id },
       relations: {
-        user: true,
+        User: true,
       },
     });
 

@@ -5,5 +5,7 @@ export class CreateResumeDto {
 
   isVisuable: boolean;
 
-  user: User;
+  title: string;
+
+  userId: User;
 }
