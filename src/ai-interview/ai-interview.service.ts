@@ -5,6 +5,9 @@ import { error, log } from 'console';
 import * as AWS from 'aws-sdk';
 import { resolve } from 'path';
 import { rejects } from 'assert';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Resume } from 'src/web-push/entities/resume.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AiInterviewService {
@@ -13,7 +16,8 @@ export class AiInterviewService {
   private params;
 
   constructor(
-    private readonly resumeService: ResumeService,
+    @InjectRepository(Resume)
+    private readonly resumeRepository: Repository<Resume>,
     private readonly configService: ConfigService,
   ) {
     AWS.config.update({
@@ -36,8 +40,11 @@ export class AiInterviewService {
     userId: number,
   ): Promise<{ role: string; content: string }> {
     return new Promise(async (resolve, rejects) => {
-      const resume = await this.resumeService.findOne(userId);
-
+      const resume = await this.resumeRepository
+        .createQueryBuilder('resume')
+        .where('resume.userId = :userId', { userId })
+        .getOne();
+      log(resume);
       const content: string = resume.resumeText;
       resolve({ role, content });
     });
