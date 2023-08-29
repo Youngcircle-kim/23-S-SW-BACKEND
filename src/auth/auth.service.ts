@@ -5,6 +5,7 @@ import { User } from 'src/web-push/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
+import { log } from 'console';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
   ) {}
   async kakaoLogin(req: Request, res: Response): Promise<any> {
     try {
+      log('login');
       const { user } = req.body;
 
       // 유저 중복 검사

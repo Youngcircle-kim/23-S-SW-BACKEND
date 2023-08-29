@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { log } from 'console';
 import { Strategy, Profile } from 'passport-kakao';
 
 @Injectable()
@@ -25,6 +26,7 @@ export class JwtKakaoStrategy extends PassportStrategy(Strategy) {
         name: _json.properties.nickname,
         photo: _json.properties.thumbnail_image,
       };
+      log('콜백');
       done(null, user);
     } catch (error) {
       done(error);

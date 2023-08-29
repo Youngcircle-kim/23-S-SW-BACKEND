@@ -20,12 +20,14 @@ export class ReservationService {
     private readonly reservationRepository: Repository<Reservation>,
   ) {}
   async create(createReservationDto: CreateReservationDto) {
-    const newReservation: Reservation = Reservation.of(
-      createReservationDto.time,
-      createReservationDto.userId,
-      createReservationDto.counselorId,
-    );
     try {
+      log(createReservationDto);
+      const newReservation: Reservation = Reservation.of(
+        createReservationDto.time,
+        createReservationDto.userId,
+        createReservationDto.counselorId,
+      );
+
       const savedReservation = await this.reservationRepository.save(
         newReservation,
       );
@@ -49,11 +51,13 @@ export class ReservationService {
     return ResponseReservationDto.from(reservation);
   }
 
-  async findAll(id: number) {
-    const reservations: Reservation[] = await this.reservationRepository
-      .createQueryBuilder('reservation')
-      .where('reservation.userId = :id', { id })
-      .getMany();
+  async findAll() {
+    const reservations: Reservation[] = await this.reservationRepository.find({
+      relations: {
+        userId: true,
+        counselorId: true,
+      },
+    });
 
     if (reservations === null) {
       throw new NotFoundException();
